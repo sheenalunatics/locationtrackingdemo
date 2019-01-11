@@ -1,0 +1,14 @@
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\bin\Debug\netcoreapp2.2\locationtrackapi.deps.json
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\bin\Debug\netcoreapp2.2\locationtrackapi.runtimeconfig.json
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\bin\Debug\netcoreapp2.2\locationtrackapi.runtimeconfig.dev.json
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\bin\Debug\netcoreapp2.2\locationtrackapi.dll
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\bin\Debug\netcoreapp2.2\locationtrackapi.pdb
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\obj\Debug\netcoreapp2.2\locationtrackapi.csprojAssemblyReference.cache
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\obj\Debug\netcoreapp2.2\locationtrackapi.csproj.CoreCompileInputs.cache
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\obj\Debug\netcoreapp2.2\locationtrackapi.RazorAssemblyInfo.cache
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\obj\Debug\netcoreapp2.2\locationtrackapi.RazorAssemblyInfo.cs
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\obj\Debug\netcoreapp2.2\locationtrackapi.AssemblyInfoInputs.cache
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\obj\Debug\netcoreapp2.2\locationtrackapi.AssemblyInfo.cs
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\obj\Debug\netcoreapp2.2\locationtrackapi.RazorTargetAssemblyInfo.cache
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\obj\Debug\netcoreapp2.2\locationtrackapi.dll
+d:\Visual Studio Code\LocationTrackingDemo\locationtrackapi\locationtrackapi\obj\Debug\netcoreapp2.2\locationtrackapi.pdb
