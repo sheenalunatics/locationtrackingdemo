@@ -57,7 +57,7 @@ namespace locationtrackapi.Controllers
         [Route("tokens")]
         public IActionResult Post()
         {
-            var model = TokenBuilder.CreateJsonWebToken("ukrit.s", new List<string>() { "Administrator" } , "http://localhost:5000", "http://localhost:5000", Guid.NewGuid(), DateTime.UtcNow.AddMinutes(20));
+            var model = TokenBuilder.CreateJsonWebToken("ukrit.s", new List<string>() { "Administrator" } , "http://localhost:5000", "http://localhost:5000", Guid.NewGuid(), DateTime.UtcNow.AddMinutes(120));
             return Ok(model);
         }
 
