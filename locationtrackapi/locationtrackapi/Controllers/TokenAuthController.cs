@@ -40,6 +40,10 @@ namespace locationtrackapi.Controllers
             {
                 principal = jwtSecurityTokenHandler.ValidateToken(jwToken, TokenBuilder.tokenValidationParams, out securityToken);
             }
+            catch(SecurityTokenExpiredException ex)
+            {
+                return StatusCode(401,"The token is expired, please try to login again.");
+            }
             catch (Exception ex)
             {
                 throw ex;
@@ -57,10 +61,45 @@ namespace locationtrackapi.Controllers
         [Route("tokens")]
         public IActionResult Post()
         {
-            var model = TokenBuilder.CreateJsonWebToken("ukrit.s", new List<string>() { "Administrator" } , "http://localhost:5000", "http://localhost:5000", Guid.NewGuid(), DateTime.UtcNow.AddMinutes(120));
+            //  public static string CreateJsonWebToken(string username, IEnumerable<string> roles, string audienceUri, string issuerUri
+            //, Guid applicationId, DateTime expires, string deviceId = null, bool isReAuthToken = false)
+            var model = TokenBuilder.CreateJsonWebToken("ukrit.s", new List<string>() { "Administrator" } ,  "http://localhost:5000", "http://localhost:5000", Guid.NewGuid(), DateTime.UtcNow.AddMinutes(30));
             return Ok(model);
         }
 
+        [HttpPost, Route("login")]
+        public IActionResult Login([FromBody]LoginModel user)
+       // public IActionResult Login(string username)
+        {
+            if (user == null)
+            {
+                return BadRequest("Invalid client request");
+            }
+    
+            var model = TokenBuilder.CreateJsonWebToken(user.UserName, new List<string>() { "Administrator" } ,  "http://localhost:5000", "http://localhost:5000", Guid.NewGuid(), DateTime.UtcNow.AddMinutes(30));
+            return Ok(model);
+            // if (user.UserName == "johndoe" && user.Password == "def@123")
+            // {
+            //     var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"));
+            //     var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+    
+            //     var tokeOptions = new JwtSecurityToken(
+            //         issuer: "http://localhost:5000",
+            //         audience: "http://localhost:5000",
+            //         claims: new List<Claim>(),
+            //         expires: DateTime.Now.AddMinutes(5),
+            //         signingCredentials: signinCredentials
+            //     );
+    
+            //     var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
+            //     return Ok(new { Token = tokenString });
+            // }
+            // else
+            // {
+            //     return Unauthorized();
+            // }
+        }
+        
     // [HttpPost]
     // public string GetAuthToken([FromBody]LoginModel user)
     // {

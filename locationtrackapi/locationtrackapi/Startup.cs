@@ -17,11 +17,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+//using Microsoft.IdentityModel.Tokens;
 // using Microsoft.Extensions.Logging;
 // using Microsoft.Extensions.Options;
 // using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-//using Microsoft.IdentityModel.Tokens;
 using NLog;
 using NLog.Extensions.Logging;
 
@@ -30,13 +30,13 @@ namespace locationtrackapi
     public class Startup
     {
         public Startup(IConfiguration configuration)
-        {
+        {            
             Configuration = configuration;
             LogManager.LoadConfiguration(String.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
         }
 
         public IConfiguration Configuration { get; }
-
+    
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -50,15 +50,16 @@ namespace locationtrackapi
             //         ValidateIssuer = true,
             //         ValidateAudience = true,
             //         ValidateLifetime = true,
-            //        ValidateIssuerSigningKey = true,  
+            //         ValidateIssuerSigningKey = true,  
             //         ValidIssuer = Configuration["Jwt:Issuer"],  
             //         ValidAudience = Configuration["Jwt:Issuer"],
             //         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
             //     };
             // });
-
+        
+       
              //Set up our configuration for jwt tokens inside an extension method
-            services.ConfigureJwtAuthentication();
+            services.ConfigureJwtAuthentication(Configuration);
             services.AddAuthorization(options =>
             {
                 options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme).RequireAuthenticatedUser().Build();
@@ -90,14 +91,6 @@ namespace locationtrackapi
     //     });
 
         
-        // services.AddAuthorization(opts =>
-        // {
-        //     opts.AddPolicy("SurveyCreator", p =>
-        //     {
-        //         // Using value text for demo show, else use enum : ClaimTypes.Role
-        //         p.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "SurveyCreator");
-        //     });
-        // });
 
             services.ConfigureLoggerService();
             services.AddMvc().AddJsonOptions(opt =>
@@ -120,7 +113,7 @@ namespace locationtrackapi
             {
               app.UseHsts();
             }
-
+      
         // app.UseExceptionHandler(appBuilder =>
         //         {
         //             appBuilder.Use(async (context, next) =>
@@ -161,63 +154,6 @@ namespace locationtrackapi
             app.UseStaticFiles();         
             app.UseMvc();
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        // public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        // {
-        //     if (env.IsDevelopment())
-        //     {
-        //         app.UseDeveloperExceptionPage();
-        //     }
-        //     else
-        //     {
-        //       app.UseExceptionHandler("/Error");
-        //       app.UseHsts();
-        //     }
-        //      app.UseCors("CorsPolicy");
- 
-        //     app.UseForwardedHeaders(new ForwardedHeadersOptions
-        //     {
-        //         ForwardedHeaders = ForwardedHeaders.All
-        //     });
- 
-        //     app.Use(async (context, next) =>
-        //     {
-        //         await next();
-        
-        //         if (context.Response.StatusCode == 404
-        //             && !Path.HasExtension(context.Request.Path.Value))
-        //         {
-        //             context.Request.Path = "/index.html";
-        //             await next();
-        //         }
-        //     });
-   
-        //     // app.UseExceptionHandler(config =>
-        //     //     {
-        //     //         config.Run(async context =>
-        //     //         {
-        //     //             context.Response.StatusCode = 500;
-        //     //             context.Response.ContentType = "application/json";
-            
-        //     //             var error = context.Features.Get<IExceptionHandlerFeature>();
-        //     //             if (error != null)
-        //     //             {
-        //     //                 var ex = error.Error;
-            
-        //     //                 await context.Response.WriteAsync(new ErrorModel()
-        //     //                 {
-        //     //                     StatusCode = 500,
-        //     //                     ErrorMessage = ex.Message 
-        //     //                 }.ToString(); //ToString() is overridden to Serialize object
-        //     //             }
-        //     //         });
-        //     //     });
-                
-        //     app.UseHttpsRedirection();
-        //     app.UseStaticFiles();            
-        //     app.UseMvc();
-        // }
 
         // public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerManager logger)
         // {
