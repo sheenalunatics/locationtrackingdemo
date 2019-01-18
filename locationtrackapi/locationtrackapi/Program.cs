@@ -19,6 +19,8 @@ namespace locationtrackapi
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args).UseUrls("http://localhost:5000")
+                // .ConfigureServices(services => services.AddAutofac())
+                // .UseIISIntegration()
                 .UseStartup<Startup>();
     }
 }

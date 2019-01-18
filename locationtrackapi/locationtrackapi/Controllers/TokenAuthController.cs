@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Principal;
+using locationtrackapi.BAL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -16,10 +17,11 @@ namespace locationtrackapi.Controllers
     [Route("api/[controller]")]
     public class TokenAuthController : Controller
     {
-       // private UserRepository userRepository;
-        public TokenAuthController()
+        private ILoggerManager _logger;
+        private IUserBAL _objUserBll;
+        public TokenAuthController(IUserBAL objUserBll)
         {
-          //  this.userRepository = new UserRepository();
+            _objUserBll = objUserBll;
         }
 
         [HttpGet]
@@ -48,12 +50,11 @@ namespace locationtrackapi.Controllers
             {
                 throw ex;
             }
-            if ((principal != null) && (principal.Claims != null))
-            {
-                var jwtSecurityToken = securityToken as JwtSecurityToken;
-                Trace.WriteLine(jwtSecurityToken.Audiences.First());
-                Trace.WriteLine(jwtSecurityToken.Issuer);
-            }
+            // if ((principal != null) && (principal.Claims != null))
+            // {
+            //     var jwtSecurityToken = securityToken as JwtSecurityToken;
+            //     Trace.WriteLine(jwtSecurityToken.Issuer);
+            // }
             return Ok();
         }
 
@@ -63,7 +64,7 @@ namespace locationtrackapi.Controllers
         {
             //  public static string CreateJsonWebToken(string username, IEnumerable<string> roles, string audienceUri, string issuerUri
             //, Guid applicationId, DateTime expires, string deviceId = null, bool isReAuthToken = false)
-            var model = TokenBuilder.CreateJsonWebToken("ukrit.s", new List<string>() { "Administrator" } ,  "http://localhost:5000", "http://localhost:5000", Guid.NewGuid(), DateTime.UtcNow.AddMinutes(30));
+            var model = TokenBuilder.CreateJsonWebToken("ukrit.s", new List<string>() { "Administrator" } ,  "http://localhost:5000", "http://localhost:5000", "3995132E-22B0-493E-A4BF-2FF52509FAF9", DateTime.UtcNow.AddMinutes(30));
             return Ok(model);
         }
 
@@ -75,93 +76,66 @@ namespace locationtrackapi.Controllers
             {
                 return BadRequest("Invalid client request");
             }
-    
-            var model = TokenBuilder.CreateJsonWebToken(user.UserName, new List<string>() { "Administrator" } ,  "http://localhost:5000", "http://localhost:5000", Guid.NewGuid(), DateTime.UtcNow.AddMinutes(30));
-            return Ok(model);
-            // if (user.UserName == "johndoe" && user.Password == "def@123")
-            // {
-            //     var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"));
-            //     var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-    
-            //     var tokeOptions = new JwtSecurityToken(
-            //         issuer: "http://localhost:5000",
-            //         audience: "http://localhost:5000",
-            //         claims: new List<Claim>(),
-            //         expires: DateTime.Now.AddMinutes(5),
-            //         signingCredentials: signinCredentials
-            //     );
-    
-            //     var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-            //     return Ok(new { Token = tokenString });
-            // }
-            // else
-            // {
-            //     return Unauthorized();
-            // }
+            
+            try
+            {
+                if (ValidateUser(user))
+                {
+                    var model = TokenBuilder.CreateJsonWebToken(user.UserName, null, null, user.Issuer, user.ApplicationID, DateTime.UtcNow.AddDays(1));
+                    return Ok(model);
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            } 
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong inside the LocationTracking action: {ex}");
+                return StatusCode(500, "Internal server error");
+            }  
+           
         }
         
-    // [HttpPost]
-    // public string GetAuthToken([FromBody]LoginModel user)
-    // {
-    //     var existUser = new LoginModel{ UserName = user.UserName, Password = user.Password}; //new User(); //UserStorage.Users.FirstOrDefault(u => u.Username == user.Username && u.Password == user.Password);
+        private bool ValidateUser(LoginModel user)
+        {
+            if (string.IsNullOrEmpty(user.UserName))
+            {
+                throw new ArgumentException("Argument cannot be null or empty", "username");
+            }
+            if (string.IsNullOrEmpty(user.Password))
+            {
+                throw new ArgumentException("Argument cannot be null or empty", "password");
+            }
+            if (user.UserType == "api")
+            {
+                //return false;
+                LoginModel userModel = CheckUser(user.UserName,user.ApplicationID);
+                if (user == null) return false;
+                return userModel.Password == Helper.EncodePassword(user.Password, userModel.PasswordSalt);
+            }
+            else if (user.UserType == "rms")
+            {
+                return false;
+            }
+            else if (user.UserType == "pms")
+            {
+                return false;
+            }
+            else if (user.UserType == "ad")
+            {
+                return false;
+            }
 
-    //     if (existUser != null)
-    //     {
-    //         var requestAt = DateTime.Now;
-    //         var expiresIn = requestAt.Add(TimeSpan.FromMinutes(30));
-    //         var token = GenerateToken(existUser, expiresIn);
+            return false;
+        }
 
-    //         return JsonConvert.SerializeObject(new
-    //         {
-    //             requestAt = requestAt,
-    //             expiresIn = TimeSpan.FromMinutes(30).TotalSeconds,
-    //             tokeyType = "Bearer",
-    //             accessToken = token
-    //         });
-    //     }
-    //     else
-    //     {
-    //         return JsonConvert.SerializeObject(new 
-    //         {
-    //             Msg = "Username or password is invalid"
-    //         });
-    //     }
-    // }
+        public LoginModel CheckUser(string username,string appId)
+        {         
+                var users = _objUserBll.GetUsers() as List<LoginModel>;
+                return users.Find(s => s.UserName == username && s.ApplicationID == appId);                 
+        }
+      
 
-    // private string GenerateToken(LoginModel user, DateTime expires)
-    // {
-    //     var handler = new JwtSecurityTokenHandler();
-
-    //     ClaimsIdentity identity = new ClaimsIdentity(
-    //         new GenericIdentity(user.UserName, "TokenAuth"),
-    //         new[] {
-    //             new Claim("ID", user.ID.ToString())
-    //         }
-    //     );
-
-    //     var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-    //     {
-            
-    //         Issuer = "Issuer",
-    //         Audience = "Audience",
-    //         SigningCredentials = new SigningCredentials(new RsaSecurityKey(new RSACryptoServiceProvider(2048).ExportParameters(true)), SecurityAlgorithms.RsaSha256Signature),
-    //         Subject = identity,
-    //         Expires = expires,
-    //         NotBefore = DateTime.Now.Subtract(TimeSpan.FromMinutes(30))
-    //     });
-    //     return handler.WriteToken(securityToken);
-    // }
-
-    // [HttpGet]
-    // [Authorize("Bearer")]
-    // public string GetUserInfo()
-    // {
-    //     var claimsIdentity = User.Identity as ClaimsIdentity;
-
-    //     return JsonConvert.SerializeObject(new 
-    //     {
-    //         UserName = claimsIdentity.Name
-    //     });
-    // }
     }
 }

@@ -31,9 +31,6 @@ namespace locationtrackapi
             return Convert.ToBase64String(hashmessage);
         }
 
-        //Construct our JWT authentication paramaters then inject the parameters into the current TokenBuilder instance
-        // If injecting an RSA key for signing use this method
-        // Be weary of common jwt trips: https://trustfoundry.net/jwt-hacking-101/ and https://www.sjoerdlangkemper.nl/2016/09/28/attacking-jwt-authentication/
         //public static void ConfigureJwtAuthentication(this IServiceCollection services, RSAParameters rsaParams)
         public static void ConfigureJwtAuthentication(this IServiceCollection services,IConfiguration _config)
         {
@@ -42,8 +39,8 @@ namespace locationtrackapi
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = _config["Jwt:Issuer"],
                     ValidateLifetime = true,
-                    ValidAudience = _config["Jwt:Audience"],
-                    ValidateAudience = true,
+                    ValidAudience = null,
+                    ValidateAudience = false,
                     RequireSignedTokens = true,                
                     // Use our signing credentials key here
                     // optionally we can inject an RSA key as
@@ -71,7 +68,7 @@ namespace locationtrackapi
                IEnumerable<string> roles,
                string audienceUri,
                string issuerUri,
-               Guid applicationId,
+               string applicationId,
                DateTime expires,
                string deviceId = null,
                bool isReAuthToken = false)
@@ -81,17 +78,17 @@ namespace locationtrackapi
             {
                  claims.Add(new Claim(ClaimTypes.Name, username));
             }
-            if (roles != null)
-            {
-                foreach (var role in roles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role));
-                }
-            }
+            // if (roles != null)
+            // {
+            //     foreach (var role in roles)
+            //     {
+            //         claims.Add(new Claim(ClaimTypes.Role, role));
+            //     }
+            // }
             var head = new JwtHeader();
-            var payload = new JwtPayload(claims.ToArray());
-            var jwt = new JwtSecurityToken(issuerUri, audienceUri, claims, DateTime.UtcNow, expires, signingCredentials);
+            var payload = new JwtPayload(claims.ToArray());    
+            var jwt = new JwtSecurityToken(issuerUri, null, claims, DateTime.UtcNow, expires, signingCredentials);
             return new JwtSecurityTokenHandler().WriteToken(jwt);
-        }
+        } 
     }
 }

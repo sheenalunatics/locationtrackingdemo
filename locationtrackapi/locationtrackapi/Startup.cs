@@ -57,7 +57,8 @@ namespace locationtrackapi
             //     };
             // });
         
-       
+            services.AddScoped<DAL.IUserDAL, DAL.UserDAL>();
+            services.AddScoped<BAL.IUserBAL, BAL.UserBAL>();
              //Set up our configuration for jwt tokens inside an extension method
             services.ConfigureJwtAuthentication(Configuration);
             services.AddAuthorization(options =>
